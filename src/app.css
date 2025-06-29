@@ -1,1 +1,55 @@
-@import 'tailwindcss';
+@import "tailwindcss";
+
+@theme {
+  /* Малиновая палитра в HEX, основанная на #dc143c */
+  --color-rasp-50: #fde8eb;
+  --color-rasp-100: #fbd1d8;
+  --color-rasp-200: #f8a3b1;
+  --color-rasp-300: #f4758a;
+  --color-rasp-400: #f14763;
+  --color-rasp-500: #dc143c;
+  /* Основной малиновый (Crimson) */
+  --color-rasp-600: #b81032;
+  --color-rasp-700: #940c28;
+  --color-rasp-800: #70081e;
+  --color-rasp-900: #4c0414;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("/Inter_24pt-Regular.ttf");
+}
+
+@font-face {
+  font-family: "Manrope";
+  src: url("/Manrope-Regular.ttf");
+}
+
+@font-face {
+  font-family: "Caveat";
+  src: url("/Caveat-Regular.ttf");
+}
+
+.caveat {
+  font-family: "Caveat";
+}
+
+button {
+  cursor: pointer;
+}
+
+body {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  font-family: 'Manrope';
+}
+
+
+#app {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
