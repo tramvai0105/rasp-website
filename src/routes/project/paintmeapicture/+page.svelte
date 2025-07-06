@@ -26,6 +26,7 @@
     function setIsConnected(status){
         isConnected = status;
     }
+    let updateId = 0;
     let ws; // сохраняем ссылку на WebSocket компонент
 
     let bruhCoords = [[1,1], [2, 1], [3, 1], [1,2], [2, 2], [3, 2],[1,3], [2, 3], [3, 3]]
@@ -36,13 +37,20 @@
                 return;
             }
             let coord = bruhCoords[i];
-            cells[((x + coord[1] - 1) * h) + (y + coord[0] - 1)] = color;
+            let coords = ((x + coord[1] - 1) * h) + (y + coord[0] - 1);
+            if(coords < w * h){
+                cells[coords] = color;
+            }
         })
         ws.send("paint", cells);
     }
 
     function setBoard(board){
         cells = board;
+    }
+
+    function setUpdateId(){
+        updateId = updateId + 1;
     }
 
 </script>
@@ -62,9 +70,9 @@
     </div>
     <div class="w-full mt-6 h-full flex grow flex-row justify-center">
         <Meaning/>
-        <Board {color} {cells} setCells={setCells}/>
+        <Board updateId={updateId} {color} {cells} setCells={setCells}/>
         <Pallete selectedColor={color} {setColor} {bruh} {setBruh}>
-            <WebSocket bind:this={ws} setBoard={setBoard} setIsConnected={setIsConnected}/>
+            <WebSocket bind:this={ws} setUpdateId={setUpdateId} setBoard={setBoard} setIsConnected={setIsConnected}/>
         </Pallete>
     </div>
 </div>

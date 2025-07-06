@@ -37,10 +37,10 @@ async function savePixels() {
 
 // Геттер и сеттер
 const getPixels = () => pixels;
-const updatePixels = async (_pixels) => {
+const updatePixels = (_pixels) => {
   pixels = _pixels;
   // pictureCanvas = generateInterpolatedImage(_pixels, 16, 16, 460, 460)
-  return {pixels: pixels, picture: pictureCanvas}
+  return {pixels: pixels}
 };
 
 // Загружаем пиксели из файла при старте

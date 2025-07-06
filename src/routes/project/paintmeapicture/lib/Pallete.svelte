@@ -1,5 +1,5 @@
 <script>
-    let colors = ["#f94144", "#f9c74f", "#90be6d", "#277da1",];
+    let colors = ["#f94144", "#f9c74f", "#90be6d", "#277da1", "#000000"];
     export let selectedColor = "#f94144";
     export let setColor;
 
@@ -65,7 +65,7 @@
                     {#each new Array(bruhDim) as vv, j}
                         <div
                             on:click={()=>setBruh(bruhDim * i + j)}
-                            class="w-[25px] h-[25px] rounded-md transition-all duration-100 hover:scale-105 hover:z-10 hover:shadow-lg cursor-pointer"
+                            class="w-[25px] h-[25px] rounded-md transition-all items-center justify-center flex duration-100 hover:scale-105 hover:z-10 hover:shadow-lg cursor-pointer"
                             style={`
                             background-color: ${bruh[bruhDim * i + j]?selectedColor:"#fff"};
                             box-shadow: 
@@ -74,7 +74,9 @@
                                 inset -1px -1px 2px rgba(0, 0, 0, 0.2);
                             border: 1px solid rgba(0, 0, 0, 0.1);
                         `}
-                        ></div>
+                        >{#if (i + j == 0)}
+                            <div class="w-[6px] h-[6px] rounded-full bg-gray-700"></div>
+                        {/if}</div>
                     {/each}
                 </div>
             {/each}

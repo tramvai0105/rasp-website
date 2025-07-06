@@ -18,7 +18,7 @@
 
     let projects = [
         { name: "PaintMeAPicture", to: "paintmeapicture" },
-        { name: "BonecaAmbalabu", to: "bonecaambalabu" },
+        { name: "Zhabba", to: "zhabba" },
     ];
     /**
      * @type {HTMLDivElement}

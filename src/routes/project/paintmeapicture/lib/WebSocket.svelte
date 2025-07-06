@@ -8,6 +8,7 @@
     let data = "";
     let isConnected = false;
     export let setIsConnected;
+    export let setUpdateId;
     let action = "getPixels";
     let socket;
 
@@ -23,9 +24,11 @@
             let msg = JSON.parse(event.data);
             if (msg.action === "getPixels") {
                 setBoard(msg.data);
+                setUpdateId()
             }
             if (msg.action === "pixelsUpdate") {
                 setBoard(msg.data);
+                setUpdateId()
             }
         };
 

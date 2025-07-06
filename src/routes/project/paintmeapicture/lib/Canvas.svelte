@@ -26,6 +26,12 @@
     export let cells = new Array(w * h).fill("#ffffff");
     let colorsGrid = new Uint8Array(gridSize * gridSize * 3);
 
+    export let updateId;
+    /**
+     * @type {any}
+     */
+    let selfUpdateId;
+
     onMount(() => {
         initWebGL();
         colorsGrid = colorsToUint8Array(cells);
@@ -33,30 +39,33 @@
     });
 
     $: {
-        colorsGrid = colorsToUint8Array(cells);
-        if (gl) {
-            updateTexture();
-            draw();
+        if (updateId != selfUpdateId) {
+            colorsGrid = colorsToUint8Array(cells);
+            if (gl) {
+                updateTexture();
+                draw();
+                selfUpdateId = updateId;
+            }
         }
     }
 
     function initWebGL() {
-    gl = canvas.getContext("webgl");
-    if (!gl) {
-        console.error("WebGL not supported");
-        return;
-    }
+        gl = canvas.getContext("webgl");
+        if (!gl) {
+            console.error("WebGL not supported");
+            return;
+        }
 
-    // Вершинный шейдер
-    const vsSource = `
+        // Вершинный шейдер
+        const vsSource = `
         attribute vec2 aPosition;
         void main() {
             gl_Position = vec4(aPosition, 0.0, 1.0);
         }
     `;
 
-    // Фрагментный шейдер с градиентом в промежутках
-    const fsSource = `precision highp float;
+        // Фрагментный шейдер с градиентом в промежутках
+        const fsSource = `precision highp float;
 uniform sampler2D uTexture;
 uniform vec2 uCanvasSize;
 uniform vec2 uGridSize;
@@ -144,66 +153,75 @@ void main() {
     }
 }`;
 
-    // Компиляция шейдеров
-    const vertexShader = gl.createShader(gl.VERTEX_SHADER);
-    gl.shaderSource(vertexShader, vsSource);
-    gl.compileShader(vertexShader);
+        // Компиляция шейдеров
+        const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+        gl.shaderSource(vertexShader, vsSource);
+        gl.compileShader(vertexShader);
 
-    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-    gl.shaderSource(fragmentShader, fsSource);
-    gl.compileShader(fragmentShader);
+        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(fragmentShader, fsSource);
+        gl.compileShader(fragmentShader);
 
-    // Проверка компиляции шейдеров
-    if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
-        console.error('Vertex shader compilation error:', gl.getShaderInfoLog(vertexShader));
+        // Проверка компиляции шейдеров
+        if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+            console.error(
+                "Vertex shader compilation error:",
+                gl.getShaderInfoLog(vertexShader),
+            );
+        }
+
+        if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+            console.error(
+                "Fragment shader compilation error:",
+                gl.getShaderInfoLog(fragmentShader),
+            );
+        }
+
+        // Создание программы
+        program = gl.createProgram();
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+        gl.useProgram(program);
+
+        // Вершины для полноэкранного квада
+        const positions = [-1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0];
+
+        // Создание буфера вершин
+        positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(
+            gl.ARRAY_BUFFER,
+            new Float32Array(positions),
+            gl.STATIC_DRAW,
+        );
+
+        // Установка атрибутов
+        const positionLocation = gl.getAttribLocation(program, "aPosition");
+        gl.enableVertexAttribArray(positionLocation);
+        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+        // Создание текстуры
+        texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+        // Установка uniform-переменных
+        const canvasSizeLocation = gl.getUniformLocation(
+            program,
+            "uCanvasSize",
+        );
+        gl.uniform2f(canvasSizeLocation, canvas.width, canvas.height);
+
+        const gridSizeLocation = gl.getUniformLocation(program, "uGridSize");
+        gl.uniform2f(gridSizeLocation, w, h);
+
+        const gapLocation = gl.getUniformLocation(program, "uGap");
+        gl.uniform1f(gapLocation, gap);
     }
-    
-    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
-        console.error('Fragment shader compilation error:', gl.getShaderInfoLog(fragmentShader));
-    }
-
-    // Создание программы
-    program = gl.createProgram();
-    gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
-    gl.linkProgram(program);
-    gl.useProgram(program);
-
-    // Вершины для полноэкранного квада
-    const positions = [-1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0];
-
-    // Создание буфера вершин
-    positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.bufferData(
-        gl.ARRAY_BUFFER,
-        new Float32Array(positions),
-        gl.STATIC_DRAW,
-    );
-
-    // Установка атрибутов
-    const positionLocation = gl.getAttribLocation(program, "aPosition");
-    gl.enableVertexAttribArray(positionLocation);
-    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-
-    // Создание текстуры
-    texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-    // Установка uniform-переменных
-    const canvasSizeLocation = gl.getUniformLocation(program, "uCanvasSize");
-    gl.uniform2f(canvasSizeLocation, canvas.width, canvas.height);
-
-    const gridSizeLocation = gl.getUniformLocation(program, "uGridSize");
-    gl.uniform2f(gridSizeLocation, w, h);
-
-    const gapLocation = gl.getUniformLocation(program, "uGap");
-    gl.uniform1f(gapLocation, gap);
-}
 
     function updateTexture() {
         gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -222,7 +240,6 @@ void main() {
 
     function draw() {
         if (!gl) return;
-
         gl.viewport(0, 0, canvasWidth, canvasHeight);
         gl.clearColor(0, 0, 0, 0);
         gl.clear(gl.COLOR_BUFFER_BIT);
@@ -250,5 +267,5 @@ void main() {
     width={canvasWidth}
     height={canvasHeight}
     style="position: absolute;"
-    class="rounded-md"
+    class="rounded-md shadow-md"
 ></canvas>

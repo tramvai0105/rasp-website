@@ -12,7 +12,6 @@ export default function wsController(ws, req) {
     // Обработка сообщений от клиента
     ws.on('message', (message) => {
         let msg = JSON.parse(message);
-        console.log(msg)
         switch (msg.action) {
             case "getPixels":
                 let pixels = getPixels();
@@ -20,7 +19,8 @@ export default function wsController(ws, req) {
                 ws.send(JSON.stringify(msg));
                 break;
             case "paint":
-                updatePixels(msg.data);
+                const updatePixelsData = updatePixels(msg.data);
+                msg.data = updatePixelsData.pixels;
                 broadcast({ action: "pixelsUpdate", data: msg.data }); // Рассылаем всем
                 break;
         }
@@ -34,7 +34,6 @@ export default function wsController(ws, req) {
     // Функция рассылки сообщения всем клиентам
     function broadcast(message) {
         const jsonMsg = JSON.stringify(message);
-        console.log(clients);
         clients.forEach(client => {
             if (client.readyState === ws.OPEN) {
                 client.send(jsonMsg);

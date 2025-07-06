@@ -7,6 +7,7 @@
     export let cells = new Array(w * h).fill("#ffffff");
     export let color = "#f94144";
     export let setCells;
+    export let updateId;
 
     onMount(() => {
     });
@@ -16,7 +17,7 @@
     <div
         class="flex flex-col w-[476px] h-[476px] relative gap-1 p-2 rounded-lg"
     >
-        <Canvas cells={cells}/>
+        <Canvas updateId={updateId} cells={cells}/>
         {#each new Array(w) as _, i}
             <div class="flex flex-row gap-1 z-10">
                 {#each new Array(h) as _, j}
