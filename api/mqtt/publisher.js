@@ -1,6 +1,6 @@
 import mqtt from 'mqtt';
 import { v4 as uuidv4 } from 'uuid';
-import { appendHistory, updateHistoryStatus } from '../state';
+import { appendHistory, updateHistoryStatus } from '../state.js';
 
 class MQTTPublisher {
   constructor() {

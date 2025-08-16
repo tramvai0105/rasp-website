@@ -1,7 +1,7 @@
 // server/state.js
 import fs from 'fs/promises';
 import path from 'path';
-import publisher from './mqtt/publisher';
+import publisher from './mqtt/publisher.js';
 
 const PIXELS_FILE_PATH = path.resolve('data', 'pixels.json'); // Путь к файлу данных
 const HISTORY_FILE_PATH = path.resolve('data', 'history.json');
