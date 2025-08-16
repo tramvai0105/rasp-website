@@ -1,5 +1,4 @@
 import { getPixels, updatePixels, savePixels } from "../../state.js"
-import { WebSocket } from "node:http";
 // Хранилище всех активных подключений
 const clients = new Set();
 
@@ -36,7 +35,7 @@ export default function wsController(ws, req) {
     function broadcast(message) {
         const jsonMsg = JSON.stringify(message);
         clients.forEach(client => {
-            if (client.readyState === WebSocket.OPEN) {
+            if (client.readyState === ws.OPEN) {
                 client.send(jsonMsg);
             }
         });
