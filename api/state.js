@@ -1,5 +1,5 @@
 // server/state.js
-import fs from 'fs/promises';
+import fs from 'node:fs/promises';
 import path from 'path';
 import publisher from './mqtt/publisher.js';
 
