@@ -1,5 +1,5 @@
 import { getPixels, updatePixels, savePixels } from "../../state.js"
-
+import { WebSocket } from "node:http";
 // Хранилище всех активных подключений
 const clients = new Set();
 
