@@ -10,7 +10,7 @@ export default function wsController(ws, req) {
         console.log(`Новое подключение. Всего клиентов: ${clients.size}`);
     }
     // Обработка сообщений от клиента
-    ws.on('message', (message) => {
+    ws.on('message', async (message) => {
         let msg = JSON.parse(message);
         switch (msg.action) {
             case "getPixels":
@@ -19,7 +19,7 @@ export default function wsController(ws, req) {
                 ws.send(JSON.stringify(msg));
                 break;
             case "paint":
-                const updatePixelsData = updatePixels(msg.data);
+                const updatePixelsData = await updatePixels(msg.data);
                 msg.data = updatePixelsData.pixels;
                 broadcast({ action: "pixelsUpdate", data: msg.data }); // Рассылаем всем
                 break;

@@ -65,31 +65,41 @@ const getPixels = () => pixels;
 let lastUpdateTime = 0;
 const updateThrottle = 100; // Минимальная задержка между обновлениями (мс)
 let updateTimeout = null;
-const updatePixels = (_pixels) => {
+const updatePixels = async (_pixels) => {
   pixels = _pixels;
-
-  // Троттлинг публикации
   const now = Date.now();
   const timeSinceLastUpdate = now - lastUpdateTime;
 
+  // Отменяем предыдущий отложенный вызов, если есть
+  if (updateTimeout) {
+    clearTimeout(updateTimeout);
+    updateTimeout = null;
+  }
+
+  // Немедленная публикация, если прошло достаточно времени
   if (timeSinceLastUpdate >= updateThrottle) {
-    // Если прошло достаточно времени, публикуем сразу
-    publisher.publish(pixels);
-    lastUpdateTime = now;
-    if (updateTimeout) {
-      clearTimeout(updateTimeout);
-      updateTimeout = null;
+    try {
+      await publisher.publish(pixels);
+      lastUpdateTime = now;
+    } catch (err) {
+      console.error('Failed to publish pixels:', err);
+      // Запланировать повторную попытку
+      updateTimeout = setTimeout(() => updatePixels(pixels), updateThrottle);
     }
-  } else if (!updateTimeout) {
-    // Если обновление слишком частое, планируем на оставшееся время
-    updateTimeout = setTimeout(() => {
-      publisher.publish(pixels);
-      lastUpdateTime = Date.now();
+  } else {
+    // Отложенная публикация
+    updateTimeout = setTimeout(async () => {
+      try {
+        await publisher.publish(pixels);
+        lastUpdateTime = Date.now();
+      } catch (err) {
+        console.error('Failed to publish pixels (delayed):', err);
+      }
       updateTimeout = null;
     }, updateThrottle - timeSinceLastUpdate);
   }
 
-  return { pixels: pixels };
+  return { pixels };
 };
 const getHistory = () => history;
 const appendHistory = (fragment) => {
