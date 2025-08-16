@@ -6,4 +6,5 @@ let ctrl = new PMAPController()
 
 export default function applyPaintMeAPictureRoute(app) {
     app.get('/picture', (req,res)=>ctrl.getPicture(req, res));
+    app.get('/history', (req, res)=>ctrl.getHistory(req, res));
 }

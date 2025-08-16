@@ -27,15 +27,16 @@ export default function wsController(ws, req) {
     });
 
     // Обработка закрытия соединения
-    //     ws.on('close', () => {
-    //         console.log('Соединение закрыто');
-    //     });
+    ws.on('close', () => {
+        clients.delete(ws);
+        console.log('Соединение закрыто');
+    });
 
     // Функция рассылки сообщения всем клиентам
     function broadcast(message) {
         const jsonMsg = JSON.stringify(message);
         clients.forEach(client => {
-            if (client.readyState === ws.OPEN) {
+            if (client.readyState === WebSocket.OPEN) {
                 client.send(jsonMsg);
             }
         });

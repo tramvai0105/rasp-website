@@ -23,6 +23,31 @@
         }
     }
 
+    let textToCopyTg = "@alef_delta";
+    let textToCopyMail = "tramvai00105@gmail.com";
+    let isCopiedTg = false;
+    let isCopiedMail = false;
+
+    async function copyToClipboardTg() {
+        try {
+            await navigator.clipboard.writeText(textToCopyTg);
+            isCopiedTg = true;
+            setTimeout(() => (isCopiedTg = false), 2000); // Сброс статуса через 2 секунды
+        } catch (err) {
+            console.error("Ошибка копирования: ", err);
+        }
+    }
+
+    async function copyToClipboardMail() {
+        try {
+            await navigator.clipboard.writeText(textToCopyMail);
+            isCopiedMail = true;
+            setTimeout(() => (isCopiedMail = false), 2000); // Сброс статуса через 2 секунды
+        } catch (err) {
+            console.error("Ошибка копирования: ", err);
+        }
+    }
+
     onMount(() => {
         if (footerBodyEl) {
             footerBodyEl.style.display = "none";
@@ -85,22 +110,46 @@
             <div
                 class="flex gap-4 flex-col pl-[15%] w-1/2 h-full justify-center"
             >
-                <div class="bg-white px-4 py-2 w-fit font-semibold">Контакты</div>
-                <div class="bg-white px-4 py-2 w-fit">
-                    tramvai00105@gmail.com
+                <div class="bg-white px-4 py-2 w-fit font-semibold">
+                    Контакты
                 </div>
-                <a
-                    href="https://t.me/alef_delta"
-                    class="bg-white px-4 py-2 w-fit">tg @alef_delta</a
-                >
+                <div class="group flex flex-row gap-2">
+                    <div class="bg-white px-4 py-2 w-fit">
+                        tramvai00105@gmail.com
+                    </div>
+                    <button
+                        on:click={copyToClipboardMail}
+                        class="group-hover:translate-0 text-sm px-2 items-center flex group-hover:opacity-100 transition-all delay-150 opacity-0 -translate-x-4 bg-white h-full"
+                    >
+                        {isCopiedMail ? "Скопировано!" : "Копировать"}
+                    </button>
+                </div>
+                <div class="group flex flex-row gap-2">
+                    <div class="bg-white px-4 py-2 w-fit">tg @alef_delta</div>
+                    <a
+                        sveltekit:prefetch
+                        href="https://t.me/alef_delta"
+                        class="group-hover:translate-0 px-2 items-center flex group-hover:opacity-100 transition-all opacity-0 -translate-x-4 bg-white h-full"
+                    >
+                        {"Перейти ->"}
+                    </a>
+                    <button
+                        on:click={copyToClipboardTg}
+                        class="group-hover:translate-0 text-sm px-2 items-center flex group-hover:opacity-100 transition-all delay-150 opacity-0 -translate-x-4 bg-white h-full"
+                    >
+                        {isCopiedTg ? "Скопировано!" : "Копировать"}
+                    </button>
+                </div>
             </div>
             <div class="flex flex-col gap-4 w-1/2 h-full justify-center">
                 <div class="flex flex-row gap-2">
-                    <button on:click={()=>showForm=false}
+                    <button
+                        on:click={() => (showForm = false)}
                         class="bg-white border-[2px] font-semibold border-white hover:border-black px-4 py-2 w-fit"
                         >Резюме</button
                     >
-                    <button on:click={()=>showForm=true}
+                    <button
+                        on:click={() => (showForm = true)}
                         class="bg-white border-[2px] font-semibold border-white hover:border-black px-4 py-2 w-fit"
                         >Форма обратной связи</button
                     >
@@ -108,13 +157,26 @@
                 {#if showForm}
                     <div class="flex flex-col gap-3">
                         <div class="flex flex-row gap-3">
-                            <input class="p-2 border-white border-[1px] text-white" bind:value={name} placeholder="Ваше имя"/>
-                            <button class="p-2 border-white border-[1px] text-white hover:bg-white hover:text-black">Отправить</button>
+                            <input
+                                class="p-2 border-white border-[1px] text-white"
+                                bind:value={name}
+                                placeholder="Ваше имя"
+                            />
+                            <button
+                                class="p-2 border-white border-[1px] text-white hover:bg-white hover:text-black"
+                                >Отправить</button
+                            >
                         </div>
-                        <textarea class="p-2 border-white border-[1px] h-36 text-white resize-none" bind:value={review} placeholder="Ваше мнение"/>
+                        <textarea
+                            class="p-2 border-white border-[1px] h-36 text-white resize-none"
+                            bind:value={review}
+                            placeholder="Ваше мнение"
+                        />
                     </div>
                 {:else}
-                    <div class="p-14 text-white border-[2px] text-lg font-medium w-fit border-white">
+                    <div
+                        class="p-14 text-white border-[2px] text-lg font-medium w-fit border-white"
+                    >
                         Практикующий в сфере веба, дизайна и интернета вещей
                         разработчик.
                     </div>

@@ -1,4 +1,4 @@
-import { getPixels, updatePixels, savePixels } from "../../state.js"
+import { getPixels, getHistory } from "../../state.js"
 
 class PMAPController{
 
@@ -9,6 +9,11 @@ class PMAPController{
     getPicture(req, res){
         let pixels = getPixels();
         res.json(pixels);
+    }
+
+    getHistory(req, res){
+        let history = getHistory();
+        res.json(history);
     }
 }
 

@@ -1,13 +1,12 @@
 // server/state.js
 import fs from 'fs/promises';
 import path from 'path';
-import generateInterpolatedImage from './utils/picture.js';
+import publisher from './mqtt/publisher';
 
 const PIXELS_FILE_PATH = path.resolve('data', 'pixels.json'); // Путь к файлу данных
-const PICTURE_FILE_PATH = path.resolve('data', 'picture.json'); // Путь к файлу данных
-let isSaving = false; // Флаг для защиты от частых сохранений
+const HISTORY_FILE_PATH = path.resolve('data', 'history.json');
 let pixels;
-let pictureCanvas;
+let history = [];
 
 // Загружаем пиксели из файла при старте
 async function loadPixels() {
@@ -20,62 +19,92 @@ async function loadPixels() {
   }
 }
 
-// Асинхронно сохраняем пиксели в файл (с троттлингом)
+let isSaving = false;
+let lastSaveTime = 0;
+const SAVE_INTERVAL = 1000; // 1 секунда между сохранениями
+
 async function savePixels() {
-  if (isSaving) return;
+  const now = Date.now();
+  if (isSaving || now - lastSaveTime < SAVE_INTERVAL) {
+    return; // Пропускаем вызов, если сохранение уже идёт или интервал не прошёл
+  }
+
   isSaving = true;
+  lastSaveTime = now;
 
   try {
-    await fs.writeFile(PIXELS_FILE_PATH, JSON.stringify(pixels));
-    console.log('Pixels saved');
+    await fs.promises.writeFile(PIXELS_FILE_PATH, JSON.stringify(pixels));
+    console.log('Pixels saved at', new Date().toISOString());
   } catch (error) {
     console.error('Save error:', error);
   } finally {
     isSaving = false;
+  }
+}
+// Загружаем историю из файла при старте
+async function loadHistory() {
+  try {
+    const data = await fs.readFile(HISTORY_FILE_PATH, 'utf-8');
+    history = JSON.parse(data);
+    console.log('Loaded history from file');
+  } catch (error) {
+    console.log('No saved history, using default');
+  }
+}
+
+async function saveHistory() {
+  try {
+    await fs.writeFile(HISTORY_FILE_PATH, JSON.stringify(history));
+  } catch (error) {
+    console.log("Error while saving history")
   }
 }
 
 // Геттер и сеттер
 const getPixels = () => pixels;
+let lastUpdateTime = 0;
+const updateThrottle = 100; // Минимальная задержка между обновлениями (мс)
+let updateTimeout = null;
 const updatePixels = (_pixels) => {
   pixels = _pixels;
-  // pictureCanvas = generateInterpolatedImage(_pixels, 16, 16, 460, 460)
-  return {pixels: pixels}
-};
 
-// Загружаем пиксели из файла при старте
-async function loadPicture() {
-  try {
-    const data = await fs.readFile(PICTURE_FILE_PATH, 'utf-8');
-    pictureCanvas = JSON.parse(data);
-    console.log('Loaded picture from file');
-  } catch (error) {
-    console.log('No saved picture, using default');
+  // Троттлинг публикации
+  const now = Date.now();
+  const timeSinceLastUpdate = now - lastUpdateTime;
+
+  if (timeSinceLastUpdate >= updateThrottle) {
+    // Если прошло достаточно времени, публикуем сразу
+    publisher.publish(pixels);
+    lastUpdateTime = now;
+    if (updateTimeout) {
+      clearTimeout(updateTimeout);
+      updateTimeout = null;
+    }
+  } else if (!updateTimeout) {
+    // Если обновление слишком частое, планируем на оставшееся время
+    updateTimeout = setTimeout(() => {
+      publisher.publish(pixels);
+      lastUpdateTime = Date.now();
+      updateTimeout = null;
+    }, updateThrottle - timeSinceLastUpdate);
+  }
+
+  return { pixels: pixels };
+};
+const getHistory = () => history;
+const appendHistory = (fragment) => {
+  history.push(fragment);
+}
+const updateHistoryStatus = async (id, status, time) => {
+  history = history.map((v) => { v.id == id ? time ? { ...v, status: status, publishedAt: time } : { ...v, status: status } : v })
+  if(status == "published"){
+    saveHistory();
   }
 }
 
-// Асинхронно сохраняем пиксели в файл (с троттлингом)
-async function savePicture() {
-  if (isSaving) return;
-  isSaving = true;
-  try {
-    await fs.writeFile(PICTURE_FILE_PATH, JSON.stringify(pictureCanvas));
-    console.log('Picture saved');
-  } catch (error) {
-    console.error('Save error:', error);
-  } finally {
-    isSaving = false;
-  }
-}
 
-// Геттер и сеттер
-const getPicture = () => {
-  if (pictureCanvas.lenght == 0) { picture = generateInterpolatedImage(pixels, 16, 16, 460, 460) }
-  return pictureCanvas
-};
-
-export { getPixels, updatePixels, savePixels, getPicture };
+export { getPixels, updatePixels, savePixels, getHistory, appendHistory, updateHistoryStatus, saveHistory };
 
 // Инициализация
 loadPixels();
-loadPicture();
+loadHistory();
