@@ -72,6 +72,7 @@ const updateThrottle = 100; // Минимальная задержка межд�
 let updateTimeout = null;
 const updatePixels = async (_pixels) => {
   pixels = _pixels;
+  savePixels();
   if(publisher.connectionStatus != "connected"){
     return {pixels};
   }
