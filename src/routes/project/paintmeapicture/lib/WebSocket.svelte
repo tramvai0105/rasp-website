@@ -3,7 +3,7 @@
     import { onMount} from 'svelte';
     import { browser } from '$app/environment';
 
-    export let url = "ws://localhost:3000/ws";
+    export let url = "ws://localhost:3000/api/ws";
     export let setBoard;
 
     let data = "";
@@ -19,7 +19,7 @@
                 const protocol =
                     window.location.protocol === "https:" ? "wss:" : "ws:";
                 const host = window.location.hostname;
-                return `${protocol}//${host}:3000/ws`;
+                return `${protocol}//${host}:3000/api/ws`;
             }
         } catch (e) {
             console.warn("Не удалось определить URL, используется localhost");
