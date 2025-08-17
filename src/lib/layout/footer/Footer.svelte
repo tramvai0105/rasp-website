@@ -158,9 +158,9 @@
                     <div class="flex flex-col gap-3">
                         <div class="flex flex-row gap-3">
                             <input
-                                class="p-2 border-white border-[1px] text-white"
+                                class="p-2 w-[50%] border-white border-[1px] text-white"
                                 bind:value={name}
-                                placeholder="Ваше имя"
+                                placeholder="Ваше имя/данные"
                             />
                             <button
                                 class="p-2 border-white border-[1px] text-white hover:bg-white hover:text-black"

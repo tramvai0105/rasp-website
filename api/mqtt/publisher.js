@@ -9,7 +9,8 @@ class MQTTPublisher {
     
     this.client = mqtt.connect('mqtt://localhost', {
       clientId: `matrix-publisher-${uuidv4()}`,
-      reconnectPeriod: 5000 // 5 sec reconnect interval
+      reconnectPeriod: 0, // 5 sec reconnect interval,
+      
     });
 
     this._setupEventHandlers();
@@ -89,7 +90,7 @@ class MQTTPublisher {
     return new Promise((resolve, reject) => {
       this.client.publish(
         'matrix/updates',
-        JSON.stringify(payload),
+        JSON.stringify(payload.data),
         { qos: 1, retain: true },
         (err) => {
           if (err) {

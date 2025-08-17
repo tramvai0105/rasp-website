@@ -2,6 +2,7 @@
 import fs from 'node:fs/promises';
 import path from 'path';
 import publisher from './mqtt/publisher.js';
+import db from './data/db.js';
 
 const PIXELS_FILE_PATH = path.resolve('data', 'pixels.json'); // Путь к файлу данных
 const HISTORY_FILE_PATH = path.resolve('data', 'history.json');
@@ -11,10 +12,12 @@ let history = [];
 // Загружаем пиксели из файла при старте
 async function loadPixels() {
   try {
-    const data = await fs.readFile(PIXELS_FILE_PATH, 'utf-8');
-    pixels = JSON.parse(data);
+    // const data = await fs.readFile(PIXELS_FILE_PATH, 'utf-8');
+    const data = await db.getCurrentPixels();
+    pixels = data.colors;
     console.log('Loaded pixels from file');
   } catch (error) {
+    console.log(error);
     console.log('No saved pixels, using default');
   }
 }
@@ -33,7 +36,7 @@ async function savePixels() {
   lastSaveTime = now;
 
   try {
-    await fs.promises.writeFile(PIXELS_FILE_PATH, JSON.stringify(pixels));
+    await db.updateCurrentPixels(pixels);
     console.log('Pixels saved at', new Date().toISOString());
   } catch (error) {
     console.error('Save error:', error);
@@ -41,11 +44,13 @@ async function savePixels() {
     isSaving = false;
   }
 }
+
 // Загружаем историю из файла при старте
 async function loadHistory() {
   try {
-    const data = await fs.readFile(HISTORY_FILE_PATH, 'utf-8');
-    history = JSON.parse(data);
+    // const data = await fs.readFile(HISTORY_FILE_PATH, 'utf-8');
+    const data = await db.getAllHistory();
+    history = data;
     console.log('Loaded history from file');
   } catch (error) {
     console.log('No saved history, using default');
@@ -54,7 +59,7 @@ async function loadHistory() {
 
 async function saveHistory() {
   try {
-    await fs.writeFile(HISTORY_FILE_PATH, JSON.stringify(history));
+    await db.addHistoryRecord(history[history.length - 1].data);
   } catch (error) {
     console.log("Error while saving history")
   }
@@ -67,6 +72,9 @@ const updateThrottle = 100; // Минимальная задержка межд�
 let updateTimeout = null;
 const updatePixels = async (_pixels) => {
   pixels = _pixels;
+  if(publisher.connectionStatus != "connected"){
+    return {pixels};
+  }
   const now = Date.now();
   const timeSinceLastUpdate = now - lastUpdateTime;
 
