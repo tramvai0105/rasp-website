@@ -13,13 +13,6 @@ const config = {
 		// See https://svelte.dev/docs/kit/adapters for more information about adapters.
 		adapter: adapter(),
 	},
-	vite: {
-		server: {
-			proxy: {
-				'/api': 'http://localhost:3000', // Dev-прокси
-			},
-		},
-	},
 };
 
 export default config;

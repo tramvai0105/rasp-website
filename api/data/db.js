@@ -5,7 +5,7 @@ class DB {
     constructor(dbPath = ':memory:') {
         this.db = new sql.Database(dbPath);
         // Инициализация таблиц
-        // this.initTables();
+        this.initTables();
     }
 
     initTables() {
@@ -25,11 +25,27 @@ class DB {
                     pixels_id INTEGER NOT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (pixels_id) REFERENCES pixels(id)
+                )
+            `);
+
+            this.db.run(`
+                CREATE TABLE IF NOT EXISTS reviews (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    sender_name TEXT NOT NULL,
+                    text TEXT NOT NULL
+                )
             `);
         });
     }
 
-
+    addReview(sender, text){
+        return new Promise((res, rej)=>{
+            this.db.run("INSERT INTO reviews (sender_name, text) VALUES (?, ?)", [sender, text], function(err){
+                if(err) rej(err);
+                else res();
+            })
+        })
+    }
 
     // 1. Получить текущую запись пикселей
     getCurrentPixels() {

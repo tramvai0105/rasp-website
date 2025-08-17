@@ -48,6 +48,12 @@
         }
     }
 
+    async function sendReview(){
+        let res = await fetch("/api/review", {method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({sender: name, text: review})});
+        let body = await res.json();
+        alert(body.message);
+    }
+
     onMount(() => {
         if (footerBodyEl) {
             footerBodyEl.style.display = "none";
@@ -162,7 +168,7 @@
                                 bind:value={name}
                                 placeholder="Ваше имя/данные"
                             />
-                            <button
+                            <button on:click={sendReview}
                                 class="p-2 border-white border-[1px] text-white hover:bg-white hover:text-black"
                                 >Отправить</button
                             >
