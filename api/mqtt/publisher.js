@@ -90,7 +90,7 @@ class MQTTPublisher {
     return new Promise((resolve, reject) => {
       this.client.publish(
         'matrix/updates',
-        JSON.stringify(payload.data),
+        compressToMatrixFormat(payload.data),
         { qos: 1, retain: true },
         (err) => {
           if (err) {
@@ -124,3 +124,39 @@ class MQTTPublisher {
 
 const publisher = new MQTTPublisher();
 export default publisher;
+
+function compressToMatrixFormat(pixelColors, maxColors = 16) {
+  // 1. Создаем палитру уникальных цветов
+  const colorPalette = [];
+  const colorIndexMap = {};
+  
+  // Собираем уникальные цвета и их индексы
+  for (const color of pixelColors) {
+    // Удаляем # если есть и приводим к верхнему регистру
+    const hex = color.startsWith('#') 
+      ? color.slice(1).toUpperCase() 
+      : color.toUpperCase();
+    
+    if (!colorIndexMap.hasOwnProperty(hex)) {
+      if (colorPalette.length >= maxColors) {
+        throw new Error(`Maximum colors exceeded (max ${maxColors})`);
+      }
+      colorIndexMap[hex] = colorPalette.length;
+      colorPalette.push(hex);
+    }
+  }
+
+  // 2. Формируем строку палитры (6 символов на цвет без разделителей)
+  const paletteStr = colorPalette.join('');
+
+  // 3. Формируем строку индексов
+  const indicesStr = pixelColors.map(color => {
+    const hex = color.startsWith('#') ? color.slice(1).toUpperCase() : color.toUpperCase();
+    const index = colorIndexMap[hex];
+    // Используем буквы A-F для индексов 10-15
+    return index < 10 ? index.toString() : String.fromCharCode(65 + index - 10);
+  }).join('');
+
+  // 4. Собираем итоговую строку
+  return `${paletteStr};${indicesStr}`;
+}
