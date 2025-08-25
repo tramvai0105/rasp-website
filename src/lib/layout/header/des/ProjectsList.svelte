@@ -1,7 +1,7 @@
 <script>
     import { onMount } from "svelte";
-    import Wave from "../../wave/Wave.svelte";
-    import WaveVert from "../../wave/WaveVert.svelte";
+    import Wave from "../../../wave/Wave.svelte";
+    import WaveVert from "../../../wave/WaveVert.svelte";
     import clsx from "clsx";
     import { slide } from "svelte/transition";
     import ProjectsVidget from "./ProjectsVidget.svelte";

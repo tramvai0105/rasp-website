@@ -125,7 +125,7 @@
                     </div>
                     <button
                         on:click={copyToClipboardMail}
-                        class="group-hover:translate-0 text-sm px-2 items-center flex group-hover:opacity-100 transition-all delay-150 opacity-0 -translate-x-4 bg-white h-full"
+                        class="group-hover:translate-0 border-[2px] border-white hover:border-black text-sm px-2 items-center flex group-hover:opacity-100 transition-all delay-150 opacity-0 -translate-x-4 bg-white h-full"
                     >
                         {isCopiedMail ? "Скопировано!" : "Копировать"}
                     </button>
@@ -135,13 +135,13 @@
                     <a
                         sveltekit:prefetch
                         href="https://t.me/alef_delta"
-                        class="group-hover:translate-0 px-2 items-center flex group-hover:opacity-100 transition-all opacity-0 -translate-x-4 bg-white h-full"
+                        class="group-hover:translate-0 border-[2px] border-white hover:border-black px-2 items-center flex group-hover:opacity-100 transition-all opacity-0 -translate-x-4 bg-white h-full"
                     >
                         {"Перейти ->"}
                     </a>
                     <button
                         on:click={copyToClipboardTg}
-                        class="group-hover:translate-0 text-sm px-2 items-center flex group-hover:opacity-100 transition-all delay-150 opacity-0 -translate-x-4 bg-white h-full"
+                        class="group-hover:translate-0 border-[2px] border-white hover:border-black text-sm px-2 items-center flex group-hover:opacity-100 transition-all delay-150 opacity-0 -translate-x-4 bg-white h-full"
                     >
                         {isCopiedTg ? "Скопировано!" : "Копировать"}
                     </button>
@@ -164,7 +164,7 @@
                     <div class="flex flex-col gap-3">
                         <div class="flex flex-row gap-3">
                             <input
-                                class="p-2 w-[50%] border-white border-[1px] text-white"
+                                class="p-2 w-[50%] border-white font-semibold border-[1px] text-white"
                                 bind:value={name}
                                 placeholder="Ваше имя/данные"
                             />
