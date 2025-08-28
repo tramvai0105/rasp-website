@@ -5,7 +5,7 @@
 	import { page } from "$app/state";
 	import { deviceType, initDeviceType } from "$lib/stores/device";
 	import { onMount } from "svelte";
-	import Loading from "$lib/layout/Loading.svelte";
+	import Loading from "$lib/layout/LoadingOld.svelte";
 
 	let { children, data } = $props();
 

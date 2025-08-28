@@ -1,4 +1,6 @@
 <script>
+    import { enhance } from '$app/forms';
+
     const {data} = $props();
 </script>
 

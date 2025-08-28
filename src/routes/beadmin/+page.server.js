@@ -1,6 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { createClientCookie } from '$lib/server/crypto';
-import { CODE_KEY } from '$env/static/private';
+import { CODE_KEY, IS_SERVER } from '$env/static/private';
 
 export const actions = {
     login: async ({ cookies, request }) => {
@@ -23,7 +23,7 @@ export const actions = {
         cookies.set('client-key', clientCookie, {
             path: '/',
             httpOnly: true,
-            // secure: process.env.NODE_ENV === 'production',
+            secure: IS_SERVER == "SERVER", // Важно для прода!
             sameSite: 'strict',
             maxAge: 60 * 60 * 24 * 7 // 1 неделя
         });
