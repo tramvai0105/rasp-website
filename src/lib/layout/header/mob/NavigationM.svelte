@@ -19,7 +19,7 @@
 <nav class="flex flex-row items-end gap-2">
     <ProjectsList open={projList} onClose={closeProjectsList} />
     <div class="flex h-[18px] flex-row gap-2 items-center">
-        <a class="font-semibold text-[14px]" href="/">
+        <a class="font-semibold text-[16px]" href="/">
             <div
                 class={clsx(
                     { "text-rasp-400 font-bold": page.url.pathname === '/' },
@@ -34,7 +34,7 @@
         >
             <div class="w-[4px] h-[4px] bg-green-500 rotate-45"></div>
         </div>
-        <button on:click={openProjectsList} class="font-semibold text-[14px]">
+        <button on:click={openProjectsList} class="font-semibold text-[16px]">
             <div
                 class={clsx(
                     { "text-rasp-400 font-bold": false },

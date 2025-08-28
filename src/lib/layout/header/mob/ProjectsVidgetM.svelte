@@ -25,11 +25,11 @@
                 color: ${index == i + 1
                 ?"#f14763"
                 :`rgb(${gray(i)}, ${gray(i)}, ${gray(i)}`}`}
-                class="absolute h-[20px] select-none"
+                class="absolute h-[20px] select-none text-[20x]"
             >
                 ПРОЕКТЫ
             </div>
         {/each}
     </div>
-    <div style={`color: ${index == 0?"#dc143c":"black"}`} class="font-bold">ПРОЕКТЫ</div>
+    <div style={`color: ${index == 0?"#dc143c":"black"}`} class="font-bold text-[20x]">ПРОЕКТЫ</div>
 </div>
